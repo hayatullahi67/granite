@@ -18,18 +18,20 @@ export const Layout: React.FC = () => {
     navigate('/login');
   };
 
+  const isAdmin = user?.role === UserRole.ADMIN;
+
   const navItems = [
     { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { to: '/transactions', icon: ShoppingCart, label: 'Transactions' },
     { to: '/products', icon: Package, label: 'Products' },
     { to: '/price-mapping', icon: DollarSign, label: 'Price Mapping' },
-    { to: '/my-sales', icon: TrendingUp, label: 'My Sales' },
+    { to: '/my-sales', icon: TrendingUp, label: isAdmin ? 'Users Sales' : 'My Sales' },
     { to: '/customers', icon: Users, label: 'Customers' },
     { to: '/quarries', icon: Truck, label: 'Quarries' },
   ];
 
   // Admin Only Items
-  if (user?.role === UserRole.ADMIN) {
+  if (isAdmin) {
     navItems.push(
       { to: '/audit', icon: Activity, label: 'Audit Trail' }
     );
@@ -39,7 +41,7 @@ export const Layout: React.FC = () => {
     const path = location.pathname.split('/')[1];
     if (!path) return 'Dashboard';
     if (path === 'price-mapping') return 'Price Mapping';
-    if (path === 'my-sales') return 'Product Tracker';
+    if (path === 'my-sales') return isAdmin ? 'Users Sales Tracker' : 'Product Tracker';
     if (path === 'audit') return 'Audit Trail';
     return path.charAt(0).toUpperCase() + path.slice(1);
   };
@@ -84,10 +86,10 @@ export const Layout: React.FC = () => {
                 font-medium text-white
                 ${isActive 
                   ? 'bg-primary-600 shadow-lg shadow-primary-900/20' 
-                  : 'hover:bg-stone-900'}
+                  : 'hover:bg-stone-900 text-stone-400 hover:text-white'}
               `}
             >
-              <item.icon className="mr-3 h-5 w-5 transition-colors shrink-0 text-white" />
+              <item.icon className={`mr-3 h-5 w-5 transition-colors shrink-0 ${location.pathname === item.to ? 'text-white' : 'text-stone-500 group-hover:text-white'}`} />
               <span className="relative z-10">{item.label}</span>
               {/* Subtle shine effect for active state */}
               {({ isActive }: any) => isActive && (
@@ -100,12 +102,12 @@ export const Layout: React.FC = () => {
         {/* Sidebar Footer (Pinned to bottom) */}
         <div className="shrink-0 border-t border-stone-800/50 p-6 bg-stone-950">
             <div className="flex items-center mb-6 px-1">
-                <div className="h-10 w-10 rounded-full bg-stone-800 border border-stone-700 flex items-center justify-center text-sm font-bold text-stone-300 shrink-0">
+                <div className="h-10 w-10 rounded-full bg-stone-800 border border-stone-700 flex items-center justify-center text-sm font-bold text-stone-300 shrink-0 uppercase">
                     {user?.name.charAt(0)}
                 </div>
                 <div className="ml-3 overflow-hidden">
                     <p className="text-sm font-semibold text-white truncate">{user?.name}</p>
-                    <p className="text-xs text-stone-500 capitalize truncate">{user?.role.toLowerCase()}</p>
+                    <p className="text-xs text-stone-500 capitalize truncate font-bold tracking-widest">{user?.role}</p>
                 </div>
             </div>
           <button 

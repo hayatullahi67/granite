@@ -48,6 +48,9 @@ export interface Customer {
   phone: string;
   address?: string;
   transactionCount: number;
+  createdBy?: string; // User ID who registered them
+  createdByName?: string; // Name of user who registered them
+  createdAt?: string;
 }
 
 export interface Transaction {
