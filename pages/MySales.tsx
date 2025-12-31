@@ -36,11 +36,11 @@ export const MySales: React.FC = () => {
         }
         
         const group = userGroups[creatorId];
-        group.totalRevenue += t.totalCost;
+        group.totalRevenue += (t.totalInvoice || 0);
         group.totalVolume += (t.quantity || 0);
         group.txCount += 1;
         
-        group.productStats[t.productName] = (group.productStats[t.productName] || 0) + t.totalCost;
+        group.productStats[t.productName] = (group.productStats[t.productName] || 0) + (t.totalInvoice || 0);
     });
 
     // Determine Top Product per user
@@ -77,7 +77,7 @@ export const MySales: React.FC = () => {
             };
         }
         productStats[t.productName].quantity += (t.quantity || 0);
-        productStats[t.productName].revenue += (t.totalCost || 0);
+        productStats[t.productName].revenue += (t.totalInvoice || 0);
         productStats[t.productName].count += 1;
     });
 
@@ -85,17 +85,16 @@ export const MySales: React.FC = () => {
   }, [transactions, user, isAdmin]);
 
   const totals = useMemo(() => {
-      const data = isAdmin ? adminUserStats : personalSalesData;
       return transactions.reduce((acc, t) => {
           const isMyTx = isAdmin || t.createdBy === user?.id;
           if (isMyTx) {
               acc.qty += (t.quantity || 0);
-              acc.rev += t.totalCost;
+              acc.rev += (t.totalInvoice || 0);
               acc.count += 1;
           }
           return acc;
       }, { qty: 0, rev: 0, count: 0 });
-  }, [transactions, user, isAdmin, adminUserStats, personalSalesData]);
+  }, [transactions, user, isAdmin]);
 
   const filteredAdminStats = useMemo(() => {
       return adminUserStats.filter(s => s.name.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -132,7 +131,7 @@ export const MySales: React.FC = () => {
                   </div>
                   <div>
                       <p className="text-primary-100 text-[10px] font-black uppercase tracking-wider">Total Revenue</p>
-                      <h3 className="text-2xl font-black">₦{totals.rev.toLocaleString()}</h3>
+                      <h3 className="text-2xl font-black">₦{(totals.rev || 0).toLocaleString()}</h3>
                   </div>
               </div>
           </Card>
@@ -143,7 +142,7 @@ export const MySales: React.FC = () => {
                   </div>
                   <div>
                       <p className="text-stone-400 text-[10px] font-black uppercase tracking-wider">Total Tonnage</p>
-                      <h3 className="text-2xl font-black text-stone-900">{totals.qty.toLocaleString()} <span className="text-xs font-bold text-stone-400">tons</span></h3>
+                      <h3 className="text-2xl font-black text-stone-900">{(totals.qty || 0).toLocaleString()} <span className="text-xs font-bold text-stone-400">tons</span></h3>
                   </div>
               </div>
           </Card>
@@ -200,7 +199,7 @@ export const MySales: React.FC = () => {
                                     </span>
                                 </td>
                                 <td className="px-6 py-4 text-center">
-                                    <div className="text-sm font-mono text-stone-600 font-bold">{stat.totalVolume.toLocaleString()}t</div>
+                                    <div className="text-sm font-mono text-stone-600 font-bold">{(stat.totalVolume || 0).toLocaleString()}t</div>
                                 </td>
                                 <td className="px-6 py-4">
                                     <div className="flex items-center gap-2">
@@ -210,7 +209,7 @@ export const MySales: React.FC = () => {
                                 </td>
                                 <td className="px-6 py-4 text-right">
                                     <div className="flex flex-col items-end">
-                                        <span className="text-sm font-black text-emerald-600 font-mono">₦{stat.totalRevenue.toLocaleString()}</span>
+                                        <span className="text-sm font-black text-emerald-600 font-mono">₦{(stat.totalRevenue || 0).toLocaleString()}</span>
                                         <div className="text-[9px] text-stone-400 flex items-center gap-1 group-hover:text-primary-500 transition-colors">
                                             Contribution <ArrowUpRight className="h-2 w-2" />
                                         </div>
@@ -255,10 +254,10 @@ export const MySales: React.FC = () => {
                                     </span>
                                 </td>
                                 <td className="px-6 py-4 text-right text-sm font-medium text-stone-600">
-                                    {item.quantity.toLocaleString()} t
+                                    {(item.quantity || 0).toLocaleString()} t
                                 </td>
                                 <td className="px-6 py-4 text-right">
-                                    <Badge color="green">₦{item.revenue.toLocaleString()}</Badge>
+                                    <Badge color="green">₦{(item.revenue || 0).toLocaleString()}</Badge>
                                 </td>
                             </tr>
                         ))}

@@ -4,7 +4,7 @@ import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
 import { Card, Button, Input, Modal, Badge } from '../components/UI';
 import { Customer, UserRole } from '../types';
-import { Plus, Edit, Users, Phone, MapPin, Search, Trash2, Calendar, User as UserIcon } from 'lucide-react';
+import { Plus, Edit, Users, Phone, Mail, Search, Trash2, Calendar, User as UserIcon } from 'lucide-react';
 
 export const Customers: React.FC = () => {
   const { customers, saveCustomer, deleteCustomer } = useData();
@@ -16,10 +16,17 @@ export const Customers: React.FC = () => {
 
   const isAdmin = user?.role === UserRole.ADMIN;
 
+  // Filter customers based on role: Clerks only see their own registrations
+  const visibleCustomers = useMemo(() => {
+    if (!user) return [];
+    if (isAdmin) return customers;
+    return customers.filter(c => c.createdBy === user.id);
+  }, [customers, user, isAdmin]);
+
   const [form, setForm] = useState({
     name: '',
     phone: '',
-    address: ''
+    email: ''
   });
 
   const isFormValid = form.name.trim() !== '' && form.phone.trim() !== '';
@@ -27,10 +34,10 @@ export const Customers: React.FC = () => {
   const openModal = (customer?: Customer) => {
     if (customer) {
       setEditingCustomer(customer);
-      setForm({ name: customer.name, phone: customer.phone, address: customer.address || '' });
+      setForm({ name: customer.name, phone: customer.phone, email: customer.email || '' });
     } else {
       setEditingCustomer(null);
-      setForm({ name: '', phone: '', address: '' });
+      setForm({ name: '', phone: '', email: '' });
     }
     setIsModalOpen(true);
   };
@@ -60,12 +67,12 @@ export const Customers: React.FC = () => {
   };
 
   const filteredCustomers = useMemo(() => {
-    return customers.filter(c => 
+    return visibleCustomers.filter(c => 
       c.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
       c.phone.includes(searchTerm) ||
-      (isAdmin && c.createdByName?.toLowerCase().includes(searchTerm.toLowerCase()))
+      (c.email && c.email.toLowerCase().includes(searchTerm.toLowerCase()))
     );
-  }, [customers, searchTerm, isAdmin]);
+  }, [visibleCustomers, searchTerm]);
 
   return (
     <div className="space-y-6">
@@ -73,7 +80,7 @@ export const Customers: React.FC = () => {
          <div>
             <h1 className="text-2xl font-bold text-stone-900">Customers</h1>
             <p className="text-stone-500 text-sm mt-1">
-                {isAdmin ? 'System-wide customer database with registry tracking.' : 'Manage client relationships and contact details.'}
+                {isAdmin ? 'System-wide customer database.' : 'Your registered client list.'}
             </p>
         </div>
         <Button onClick={() => openModal()} className="w-full sm:w-auto"><Plus className="h-4 w-4 mr-2" /> Add Customer</Button>
@@ -84,7 +91,7 @@ export const Customers: React.FC = () => {
           <div className="w-full sm:w-96">
             <Input 
               icon={Search}
-              placeholder={isAdmin ? "Search by name, phone, or clerk..." : "Search by name or phone..."}
+              placeholder="Search by name, phone or email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="bg-white shadow-sm"
@@ -110,7 +117,7 @@ export const Customers: React.FC = () => {
                     <tr key={customer.id} className="hover:bg-stone-50 transition-colors group">
                         <td className="px-6 py-4">
                             <div className="flex items-center">
-                                <div className="h-9 w-9 rounded-xl bg-stone-100 flex items-center justify-center mr-3 text-stone-500 group-hover:bg-primary-50 transition-colors">
+                                <div className="h-9 w-9 rounded-xl bg-stone-100 flex items-center justify-center mr-3 text-stone-500">
                                     <Users className="h-5 w-5" />
                                 </div>
                                 <div>
@@ -125,10 +132,10 @@ export const Customers: React.FC = () => {
                                     <Phone className="h-3 w-3 mr-1.5 text-stone-400" />
                                     {customer.phone}
                                 </div>
-                                {customer.address && (
+                                {customer.email && (
                                     <div className="flex items-center text-[11px] text-stone-400">
-                                        <MapPin className="h-3 w-3 mr-1.5" />
-                                        <span className="truncate max-w-[150px]">{customer.address}</span>
+                                        <Mail className="h-3 w-3 mr-1.5" />
+                                        <span className="truncate max-w-[150px]">{customer.email}</span>
                                     </div>
                                 )}
                             </div>
@@ -139,15 +146,7 @@ export const Customers: React.FC = () => {
                                     <div className="h-8 w-8 rounded-full bg-stone-100 border border-stone-200 flex items-center justify-center text-[10px] font-black text-stone-600 uppercase shadow-sm">
                                         {customer.createdByName?.charAt(0) || 'U'}
                                     </div>
-                                    <div>
-                                        <div className="text-xs font-bold text-stone-800">{customer.createdByName || 'System'}</div>
-                                        {customer.createdAt && (
-                                            <div className="text-[9px] text-stone-400 flex items-center gap-1">
-                                                <Calendar className="h-2.5 w-2.5" />
-                                                {new Date(customer.createdAt).toLocaleDateString()}
-                                            </div>
-                                        )}
-                                    </div>
+                                    <div className="text-xs font-bold text-stone-800">{customer.createdByName || 'System'}</div>
                                 </div>
                             </td>
                         )}
@@ -158,18 +157,10 @@ export const Customers: React.FC = () => {
                         </td>
                         <td className="px-6 py-4 text-center">
                             <div className="flex justify-center items-center gap-2">
-                                <button 
-                                    onClick={() => openModal(customer)} 
-                                    className="p-2 text-stone-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all"
-                                    title="Edit Profile"
-                                >
+                                <button onClick={() => openModal(customer)} className="p-2 text-stone-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all" title="Edit">
                                     <Edit className="h-4 w-4"/>
                                 </button>
-                                <button 
-                                    onClick={() => handleDelete(customer.id)} 
-                                    className="p-2 text-stone-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
-                                    title="Delete Record"
-                                >
+                                <button onClick={() => handleDelete(customer.id)} className="p-2 text-stone-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all" title="Delete">
                                     <Trash2 className="h-4 w-4"/>
                                 </button>
                             </div>
@@ -177,9 +168,8 @@ export const Customers: React.FC = () => {
                     </tr>
                 ))}
                  {filteredCustomers.length === 0 && (
-                    <tr><td colSpan={isAdmin ? 5 : 4} className="p-12 text-center text-stone-400">
-                        <Users className="h-10 w-10 mx-auto opacity-10 mb-2" />
-                        <p className="text-sm font-medium">No matching customer records found.</p>
+                    <tr><td colSpan={isAdmin ? 5 : 4} className="p-12 text-center text-stone-400 text-sm">
+                        No matching customer records found.
                     </td></tr>
                 )}
                 </tbody>
@@ -187,33 +177,13 @@ export const Customers: React.FC = () => {
         </div>
       </Card>
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingCustomer ? "Edit Customer Profile" : "Register New Customer"}>
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingCustomer ? "Edit Customer" : "New Customer"}>
         <form onSubmit={handleSubmit} className="space-y-5">
-          <Input 
-            label="Full Name / Company" 
-            value={form.name} 
-            onChange={(e) => setForm({...form, name: e.target.value})} 
-            icon={Users}
-            required 
-            placeholder="e.g. Landmark Construction"
-          />
-          <Input 
-            label="Phone Contact" 
-            value={form.phone} 
-            onChange={(e) => setForm({...form, phone: e.target.value})} 
-            icon={Phone}
-            placeholder="080... or 070..."
-            required 
-          />
-          <Input 
-            label="Standard Shipping Address" 
-            value={form.address} 
-            onChange={(e) => setForm({...form, address: e.target.value})} 
-            icon={MapPin}
-            placeholder="Default delivery location..."
-          />
+          <Input label="Full Name / Company" value={form.name} onChange={(e) => setForm({...form, name: e.target.value})} icon={Users} required placeholder="e.g. Landmark Construction" />
+          <Input label="Phone Contact" value={form.phone} onChange={(e) => setForm({...form, phone: e.target.value})} icon={Phone} placeholder="080..." required />
+          <Input label="Customer Email" type="email" value={form.email} onChange={(e) => setForm({...form, email: e.target.value})} icon={Mail} placeholder="client@example.com" />
           <div className="flex justify-end gap-3 pt-4 border-t border-stone-100">
-            <Button type="button" variant="ghost" onClick={() => setIsModalOpen(false)} disabled={submitting}>Discard</Button>
+            <Button type="button" variant="ghost" onClick={() => setIsModalOpen(false)}>Discard</Button>
             <Button type="submit" disabled={submitting || !isFormValid} className="px-8 shadow-glow">
                 {submitting ? 'Processing...' : (editingCustomer ? 'Update Profile' : 'Register Customer')}
             </Button>

@@ -3,8 +3,16 @@ import React from 'react';
 import { X } from 'lucide-react';
 
 // --- Card ---
-export const Card: React.FC<{ children: React.ReactNode, className?: string, noPadding?: boolean }> = ({ children, className = '', noPadding = false }) => (
-  <div className={`bg-white rounded-[1.5rem] shadow-soft border border-stone-100 overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-stone-200/50 ${!noPadding ? 'p-6' : ''} ${className}`}>
+export const Card: React.FC<{ 
+  children: React.ReactNode, 
+  className?: string, 
+  noPadding?: boolean,
+  onClick?: () => void 
+}> = ({ children, className = '', noPadding = false, onClick }) => (
+  <div 
+    onClick={onClick}
+    className={`bg-white rounded-[1.5rem] shadow-soft border border-stone-100 overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-stone-200/50 ${!noPadding ? 'p-6' : ''} ${onClick ? 'cursor-pointer active:scale-[0.98]' : ''} ${className}`}
+  >
     {children}
   </div>
 );
@@ -103,25 +111,19 @@ export const Modal: React.FC<{
   isOpen: boolean; 
   onClose: () => void; 
   title: string; 
-  children: React.ReactNode 
-}> = ({ isOpen, onClose, title, children }) => {
+  children: React.ReactNode;
+  maxWidth?: string;
+}> = ({ isOpen, onClose, title, children, maxWidth = 'sm:max-w-lg' }) => {
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 z-[100]" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-      {/* Backdrop with stronger blur for aesthetics */}
       <div 
         className="fixed inset-0 bg-stone-900/40 backdrop-blur-md transition-opacity duration-300 animate-in fade-in" 
         onClick={onClose} 
       />
-      
-      {/* Wrapper to handle scrolling on small screens */}
       <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
         <div className="flex min-h-full items-end sm:items-center justify-center p-4 text-center sm:p-0">
-          
-          {/* Modal Panel */}
-          <div className="relative transform overflow-hidden rounded-[2rem] bg-white text-left shadow-2xl transition-all sm:my-8 w-full sm:max-w-lg border border-white/50 ring-1 ring-stone-900/5 animate-in zoom-in-95 duration-200 slide-in-from-bottom-5 sm:slide-in-from-bottom-0">
-            
-            {/* Cute/Aesthetic Header */}
+          <div className={`relative transform overflow-hidden rounded-[2rem] bg-white text-left shadow-2xl transition-all sm:my-8 w-full ${maxWidth} border border-white/50 ring-1 ring-stone-900/5 animate-in zoom-in-95 duration-200 slide-in-from-bottom-5 sm:slide-in-from-bottom-0`}>
             <div className="bg-gradient-to-r from-stone-50/90 to-white/90 px-6 py-5 border-b border-stone-100 flex items-center justify-between sticky top-0 z-20 backdrop-blur-xl">
               <h3 className="text-xl font-bold leading-6 text-stone-800 tracking-tight flex items-center gap-2" id="modal-title">
                 {title}
@@ -133,12 +135,9 @@ export const Modal: React.FC<{
                 <X className="h-5 w-5" />
               </button>
             </div>
-
-            {/* Scrollable Content Body with max-height for robustness */}
-            <div className="px-6 py-6 max-h-[80vh] overflow-y-auto custom-scrollbar bg-white">
+            <div className="px-6 py-6 max-h-[85vh] overflow-y-auto custom-scrollbar bg-white text-stone-800">
                {children}
             </div>
-
           </div>
         </div>
       </div>

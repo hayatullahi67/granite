@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Product, Quarry, Customer, Transaction, AuditLog, ProductCostHistory } from '../types';
+import { Product, Quarry, Customer, Transaction, AuditLog, ProductCostHistory, QuarryProductPrice } from '../types';
 import { useAuth } from './AuthContext';
 import { 
   db, 
@@ -22,6 +22,7 @@ interface DataContextType {
   transactions: Transaction[];
   auditLogs: AuditLog[];
   priceHistory: ProductCostHistory[];
+  quarryPrices: QuarryProductPrice[];
   saveProduct: (p: Product) => Promise<void>;
   softDeleteProduct: (p: Product) => Promise<void>;
   saveQuarry: (q: Quarry) => Promise<void>;
@@ -30,6 +31,7 @@ interface DataContextType {
   addTransaction: (t: Transaction) => Promise<void>;
   updateTransaction: (t: Transaction) => Promise<void>;
   deleteTransaction: (id: string) => Promise<void>;
+  saveQuarryPrice: (quarryId: string, productId: string, price: number) => Promise<void>;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -43,8 +45,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [priceHistory, setPriceHistory] = useState<ProductCostHistory[]>([]);
-
-  // --- Real-time Listeners ---
+  const [quarryPrices, setQuarryPrices] = useState<QuarryProductPrice[]>([]);
 
   useEffect(() => {
     if (!user) {
@@ -54,6 +55,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setTransactions([]);
         setAuditLogs([]);
         setPriceHistory([]);
+        setQuarryPrices([]);
         return;
     }
 
@@ -90,19 +92,21 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setPriceHistory(list);
     });
 
+    const unsubPrices = onSnapshot(collection(db, 'quarry_prices'), (snapshot: any) => {
+      const list = snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() } as QuarryProductPrice));
+      setQuarryPrices(list);
+    });
+
     return () => {
-      unsubProducts();
-      unsubQuarries();
-      unsubCustomers();
-      unsubTransactions();
-      unsubAudit();
-      unsubHistory();
+      unsubProducts(); unsubQuarries(); unsubCustomers();
+      unsubTransactions(); unsubAudit(); unsubHistory();
+      unsubPrices();
     };
   }, [user]);
 
   const addAuditLog = async (action: string, entity: string, recordId: string, details: string) => {
     if (!user) return;
-    const logData = {
+    await addDoc(collection(db, 'audit_logs'), {
       userId: user.id,
       userName: user.name,
       action,
@@ -110,65 +114,63 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       recordId,
       details,
       timestamp: new Date().toISOString()
-    };
-    await addDoc(collection(db, 'audit_logs'), logData);
+    });
   };
 
   const saveProduct = async (p: Product) => {
     if (!user) return;
     const productRef = doc(db, 'products', p.id);
     const existing = products.find(prod => prod.id === p.id);
-    if (existing) {
-      if (existing.currentPrice !== p.currentPrice) {
-         const historyData = {
-           productId: p.id,
-           productName: p.name,
-           oldPrice: existing.currentPrice,
-           newPrice: p.currentPrice,
-           changedBy: user.name,
-           date: new Date().toISOString()
-         };
-         await addDoc(collection(db, 'price_history'), historyData);
-      }
-      const payload = { 
+    const payload = { 
         ...p, 
-        createdAt: existing.createdAt || new Date().toISOString(),
-        createdBy: existing.createdBy || user.id,
-        createdByName: existing.createdByName || user.name 
-      };
-      await setDoc(productRef, payload); 
-      await addAuditLog('UPDATE', 'PRODUCT', p.name, `Updated product details`);
-    } else {
-      const payload: Product = { 
-        ...p, 
-        createdAt: new Date().toISOString(),
-        createdBy: user.id, 
-        createdByName: user.name,
-        isDeleted: false 
-      }; 
-      await setDoc(productRef, payload);
-      const historyData = {
-           productId: p.id,
-           productName: p.name,
-           oldPrice: 0,
-           newPrice: p.currentPrice,
-           changedBy: user.name,
-           date: new Date().toISOString()
-      };
-      await addDoc(collection(db, 'price_history'), historyData);
-      await addAuditLog('CREATE', 'PRODUCT', p.name, `Created new product`);
+        createdAt: existing?.createdAt || new Date().toISOString(),
+        createdBy: existing?.createdBy || user.id,
+        createdByName: existing?.createdByName || user.name 
+    };
+    await setDoc(productRef, payload);
+    await addAuditLog(existing ? 'UPDATE' : 'CREATE', 'PRODUCT', p.name, `Product definition managed`);
+  };
+
+  const saveQuarryPrice = async (quarryId: string, productId: string, price: number) => {
+    if (!user) return;
+    const priceId = `${quarryId}_${productId}`;
+    const existing = quarryPrices.find(qp => qp.id === priceId);
+    const product = products.find(p => p.id === productId);
+    const quarry = quarries.find(q => q.id === quarryId);
+
+    if (existing && existing.price !== price) {
+        await addDoc(collection(db, 'price_history'), {
+            productId,
+            quarryId,
+            productName: product?.name,
+            quarryName: quarry?.name,
+            oldPrice: existing.price,
+            newPrice: price,
+            changedBy: user.name,
+            date: new Date().toISOString()
+        });
     }
+
+    const payload: QuarryProductPrice = {
+        id: priceId,
+        quarryId,
+        productId,
+        price,
+        updatedBy: user.id,
+        updatedByName: user.name,
+        updatedAt: new Date().toISOString()
+    };
+    await setDoc(doc(db, 'quarry_prices', priceId), payload);
+    await addAuditLog('UPDATE_PRICE', 'QUARRY_PRICE', quarry?.name || quarryId, `Set price for ${product?.name} to ₦${price}`);
   };
 
   const softDeleteProduct = async (p: Product) => {
     if(!user) return;
-    const productRef = doc(db, 'products', p.id);
-    await updateDoc(productRef, { 
+    await updateDoc(doc(db, 'products', p.id), { 
       isDeleted: true,
       deletedAt: new Date().toISOString()
     });
-    await addAuditLog('DELETE', 'PRODUCT', p.name, `Soft deleted product`);
-  }
+  };
 
   const saveQuarry = async (q: Quarry) => {
     if (!user) return;
@@ -178,71 +180,43 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         ownerName: q.ownerName || user.name
     };
     await setDoc(doc(db, 'quarries', q.id), payload);
-    await addAuditLog('UPDATE', 'QUARRY', q.name, `Updated quarry details`);
   };
 
   const saveCustomer = async (c: Customer) => {
     if (!user) return;
     const existing = customers.find(cust => cust.id === c.id);
-    const isNew = !existing;
-    
-    const payload: Customer = {
+    await setDoc(doc(db, 'customers', c.id), {
         ...c,
         createdBy: existing?.createdBy || user.id,
         createdByName: existing?.createdByName || user.name,
         createdAt: existing?.createdAt || new Date().toISOString(),
-    };
-
-    await setDoc(doc(db, 'customers', c.id), payload);
-    if(isNew) await addAuditLog('CREATE', 'CUSTOMER', c.name, `Registered new customer`);
+    });
   };
 
   const deleteCustomer = async (id: string) => {
-    if (!user) return;
-    const customer = customers.find(c => c.id === id);
     await deleteDoc(doc(db, 'customers', id));
-    await addAuditLog('DELETE', 'CUSTOMER', customer?.name || id, `Deleted customer record`);
   };
 
   const addTransaction = async (t: Transaction) => {
-    if (!user) return;
     await setDoc(doc(db, 'transactions', t.id), t);
     const customerRef = doc(db, 'customers', t.customerId);
     const currentCust = customers.find(c => c.id === t.customerId);
-    const newCount = (currentCust?.transactionCount || 0) + 1;
-    await setDoc(customerRef, { transactionCount: newCount }, { merge: true });
-    await addAuditLog('CREATE', 'TRANSACTION', t.refNo, `Sale: ${t.productName} (${t.quantity} tons)`);
+    await setDoc(customerRef, { transactionCount: (currentCust?.transactionCount || 0) + 1 }, { merge: true });
   };
 
   const updateTransaction = async (t: Transaction) => {
-    if (!user) return;
     await setDoc(doc(db, 'transactions', t.id), t, { merge: true });
-    await addAuditLog('UPDATE', 'TRANSACTION', t.refNo, `Updated sale details`);
   };
 
   const deleteTransaction = async (id: string) => {
-    if (!user) return;
-    const t = transactions.find(tx => tx.id === id);
     await deleteDoc(doc(db, 'transactions', id));
-    await addAuditLog('DELETE', 'TRANSACTION', t?.refNo || id, `Deleted transaction`);
   };
 
   return (
     <DataContext.Provider value={{ 
-      products, 
-      quarries, 
-      customers, 
-      transactions, 
-      auditLogs, 
-      priceHistory,
-      saveProduct, 
-      softDeleteProduct,
-      saveQuarry, 
-      saveCustomer, 
-      deleteCustomer, 
-      addTransaction, 
-      updateTransaction, 
-      deleteTransaction 
+      products, quarries, customers, transactions, auditLogs, priceHistory, quarryPrices,
+      saveProduct, softDeleteProduct, saveQuarry, saveCustomer, deleteCustomer, 
+      addTransaction, updateTransaction, deleteTransaction, saveQuarryPrice
     }}>
       {children}
     </DataContext.Provider>

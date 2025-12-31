@@ -16,7 +16,6 @@ export interface Product {
   id: string;
   name: string;
   description: string;
-  currentPrice: number;
   createdBy: string; // User ID
   createdByName?: string; // User Name for Admin view
   createdAt?: string; // ISO Date String
@@ -24,10 +23,22 @@ export interface Product {
   deletedAt?: string;
 }
 
+export interface QuarryProductPrice {
+  id: string; // Concatenation of quarryId_productId
+  quarryId: string;
+  productId: string;
+  price: number;
+  updatedBy: string;
+  updatedByName: string;
+  updatedAt: string;
+}
+
 export interface ProductCostHistory {
   id: string;
   productId: string;
-  productName?: string; // Denormalized for easier display
+  quarryId?: string; // Now specific to a quarry
+  productName?: string; 
+  quarryName?: string;
   oldPrice: number;
   newPrice: number;
   changedBy: string;
@@ -46,10 +57,10 @@ export interface Customer {
   id: string;
   name: string;
   phone: string;
-  address?: string;
+  email?: string;
   transactionCount: number;
-  createdBy?: string; // User ID who registered them
-  createdByName?: string; // Name of user who registered them
+  createdBy?: string; 
+  createdByName?: string; 
   createdAt?: string;
 }
 
@@ -57,22 +68,25 @@ export interface Transaction {
   id: string;
   refNo: string;
   customerId: string;
-  customerName: string; // Denormalized for easier display
-  customerPhone: string; // Snapshot of phone at time of sale
-  shippingAddress: string; // Snapshot of address at time of sale
+  customerName: string; 
+  customerPhone: string; 
+  customerEmail: string;
+  destinationAddress: string;
   productId: string;
-  productName: string; // Denormalized
+  productName: string; 
   quarryId: string;
-  quarryName: string; // Denormalized
-  quarryLocation: string; // Snapshot of source location
-  rate: number;
+  quarryName: string; 
+  quarryLocation: string; 
+  purchasePrice: number; // The price from the quarry
+  salesPrice: number; // The price sold to customer
   quantity: number;
-  totalCost: number;
+  totalInvoice: number; // salesPrice * quantity
+  profit: number; // (salesPrice - purchasePrice) * quantity
   deposit: number;
   balance: number;
-  createdBy: string; // UserId
+  createdBy: string; 
   createdByName: string;
-  date: string; // ISO String
+  date: string; 
 }
 
 export interface AuditLog {
