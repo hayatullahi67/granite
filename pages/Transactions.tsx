@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { Card, Button, Input, Modal, Badge, Select } from '../components/UI';
 import { Transaction, UserRole, TransactionItem } from '../types';
 import {
-  Plus, Search, Printer, Trash2, UserPlus, Truck, MapPin, Phone, Mail,MessageCircle ,
+  Plus, Search, Printer, Trash2, UserPlus, Truck, MapPin, Phone, Mail, MessageCircle,
   FileEdit, Package, DollarSign, MapPinned, CheckCircle, CircleDollarSign,
   Calculator, User, Scale, UserCheck, CreditCard, X, AlertTriangle,
   Download, Filter, Calendar, FileSpreadsheet, RefreshCw, BarChart3, Layers
@@ -338,23 +338,23 @@ export const Transactions: React.FC = () => {
 
       {/* Advanced Filter Control Center */}
       <Card className="p-0 border-none shadow-soft overflow-hidden">
-        <div className="p-6 bg-white space-y-6">
-          <div className="flex flex-wrap items-end gap-4">
+        <div className="p-4 sm:p-6 bg-white space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-4 items-end">
             {/* Search Input */}
-            <div className="flex-1 min-w-[280px] space-y-1.5">
-              <label className="block text-xs font-bold text-stone-500 uppercase tracking-widest ml-1">Search Records</label>
+            <div className="sm:col-span-2 lg:col-span-4 space-y-1.5">
+              <label className="block text-[10px] font-black text-stone-400 uppercase tracking-widest ml-1">Search Records</label>
               <Input
                 icon={Search}
-                placeholder="Reference or Customer Name..."
+                placeholder="Reference or Customer..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="bg-stone-50/80 border-stone-200 focus:bg-white h-11"
+                className="bg-stone-50 border-stone-200 focus:bg-white h-11 w-full"
               />
             </div>
 
             {/* Customer Dropdown */}
-            <div className="w-full sm:w-64 space-y-1.5">
-              <label className="block text-xs font-bold text-stone-500 uppercase tracking-widest ml-1">Filter by Customer</label>
+            <div className="lg:col-span-3 space-y-1.5">
+              <label className="block text-[10px] font-black text-stone-400 uppercase tracking-widest ml-1">Filter by Customer</label>
               <Select
                 value={filterCustomerId}
                 onChange={(e) => setFilterCustomerId(e.target.value)}
@@ -363,47 +363,44 @@ export const Transactions: React.FC = () => {
                   ...availableCustomers.map(c => ({ label: c.name, value: c.id }))
                 ]}
                 icon={User}
-                className="bg-stone-50/80 border-stone-200 h-11"
+                className="bg-stone-50 border-stone-200 h-11 w-full"
               />
             </div>
 
             {/* Date Range Group */}
-            <div className="space-y-1.5">
-              <label className="block text-xs font-bold text-stone-500 uppercase tracking-widest ml-1">Date Period</label>
-              <div className="flex items-center gap-2 bg-stone-50/80 p-1.5 rounded-xl border border-stone-200 h-11">
-                <div className="w-36">
-                  <input
-                    type="date"
-                    value={filterStartDate}
-                    onChange={(e) => setFilterStartDate(e.target.value)}
-                    className="bg-transparent border-none text-[11px] font-black uppercase text-stone-600 focus:ring-0 w-full cursor-pointer"
-                    title="From Date"
-                    placeholder="From"
-                  />
-                </div>
-                <div className="h-4 w-px bg-stone-300"></div>
-                <div className="w-36">
+            <div className="lg:col-span-3 space-y-1.5">
+              <label className="block text-[10px] font-black text-stone-400 uppercase tracking-widest ml-1">Date Period</label>
+              <div className="grid grid-cols-2 gap-2 bg-stone-50 p-1.5 rounded-xl border border-stone-200 h-11">
+                <input
+                  type="date"
+                  value={filterStartDate}
+                  onChange={(e) => setFilterStartDate(e.target.value)}
+                  className="bg-transparent border-none text-[10px] font-black uppercase text-stone-600 focus:ring-0 w-full cursor-pointer text-center p-0"
+                  title="From Date"
+                  placeholder="Start"
+                />
+                <div className="border-l border-stone-200 h-full flex items-center justify-center">
                   <input
                     type="date"
                     value={filterEndDate}
                     onChange={(e) => setFilterEndDate(e.target.value)}
-                    className="bg-transparent border-none text-[11px] font-black uppercase text-stone-600 focus:ring-0 w-full cursor-pointer"
+                    className="bg-transparent border-none text-[10px] font-black uppercase text-stone-600 focus:ring-0 w-full cursor-pointer text-center p-0"
                     title="To Date"
-                    placeholder="To"
+                    placeholder="End"
                   />
                 </div>
               </div>
             </div>
 
             {/* Actions Bar */}
-            <div className="flex items-center gap-2">
-              <Button variant="secondary" onClick={handleExportCSV} className="h-11 px-6 rounded-xl border-stone-200 hover:bg-white hover:border-emerald-500 group">
+            <div className="sm:col-span-2 lg:col-span-2 flex items-center gap-2">
+              <Button variant="secondary" onClick={handleExportCSV} className="h-11 flex-1 rounded-xl border-stone-200 hover:bg-white hover:border-emerald-500 group">
                 <FileSpreadsheet className="h-4 w-4 mr-2 text-emerald-600 transition-transform group-hover:scale-110" />
-                <span className="text-stone-700">Export</span>
+                <span className="text-stone-700 font-bold text-xs">Export</span>
               </Button>
               <button
                 onClick={() => { setSearchTerm(''); setFilterCustomerId(''); setFilterStartDate(''); setFilterEndDate(''); }}
-                className="h-11 w-11 flex items-center justify-center rounded-xl bg-stone-50 text-stone-400 hover:bg-stone-100 hover:text-stone-600 transition-all border border-stone-200"
+                className="h-11 w-11 flex items-center justify-center rounded-xl bg-stone-50 text-stone-400 hover:bg-stone-100 hover:text-stone-600 transition-all border border-stone-200 shadow-sm"
                 title="Reset Filters"
               >
                 <RefreshCw className="h-4 w-4" />
@@ -413,7 +410,7 @@ export const Transactions: React.FC = () => {
         </div>
 
         {/* Dynamic KPI Summary Bar */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 border-t border-stone-100 divide-x divide-stone-100">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 border-t border-stone-100 divide-y sm:divide-y-0 sm:divide-x divide-stone-100">
           <SummaryItem
             label="Records Found"
             value={filteredTotals.count}
@@ -447,34 +444,34 @@ export const Transactions: React.FC = () => {
           <table className="min-w-full divide-y divide-stone-100 text-sm">
             <thead className="bg-stone-50/80">
               <tr>
-                <th className="px-6 py-4 text-left font-black text-stone-400 uppercase tracking-widest text-[10px]">Reference</th>
-                <th className="px-6 py-4 text-left font-black text-stone-400 uppercase tracking-widest text-[10px]">Customer</th>
-                <th className="px-6 py-4 text-left font-black text-stone-400 uppercase tracking-widest text-[10px] hidden md:table-cell">Loads</th>
-                <th className="px-6 py-4 text-right font-black text-stone-400 uppercase tracking-widest text-[10px]">Invoice Total</th>
-                <th className="px-6 py-4 text-right font-black text-stone-400 uppercase tracking-widest text-[10px]">Balance</th>
-                <th className="px-6 py-4 text-center font-black text-stone-400 uppercase tracking-widest text-[10px]">Actions</th>
+                <th className="px-3 py-3 sm:px-6 sm:py-4 text-left font-black text-stone-400 uppercase tracking-widest text-[10px]">Reference</th>
+                <th className="px-3 py-3 sm:px-6 sm:py-4 text-left font-black text-stone-400 uppercase tracking-widest text-[10px]">Customer</th>
+                <th className="px-3 py-3 sm:px-6 sm:py-4 text-left font-black text-stone-400 uppercase tracking-widest text-[10px] hidden md:table-cell">Loads</th>
+                <th className="px-3 py-3 sm:px-6 sm:py-4 text-right font-black text-stone-400 uppercase tracking-widest text-[10px]">Invoice Total</th>
+                <th className="px-3 py-3 sm:px-6 sm:py-4 text-right font-black text-stone-400 uppercase tracking-widest text-[10px]">Balance</th>
+                <th className="px-3 py-3 sm:px-6 sm:py-4 text-center font-black text-stone-400 uppercase tracking-widest text-[10px]">Actions</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-stone-50">
               {filteredTransactions.slice((currentPage - 1) * 5, currentPage * 5).map((tx) => (
                 <tr key={tx.id} className="hover:bg-stone-50/80 transition-all group cursor-pointer" onClick={() => { setSelectedTx(tx); setIsDetailModalOpen(true); }}>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="font-mono font-black text-stone-800 text-xs bg-stone-100 px-2.5 py-1 rounded-lg w-fit mb-1">{tx.refNo}</div>
-                    <div className="text-[10px] text-stone-400 font-bold uppercase">{new Date(tx.date).toLocaleDateString()}</div>
+                  <td className="px-3 py-3 sm:px-6 sm:py-4 whitespace-nowrap">
+                    <div className="font-mono font-black text-stone-800 text-[10px] sm:text-xs bg-stone-100 px-2.5 py-1 rounded-lg w-fit mb-1">{tx.refNo}</div>
+                    <div className="text-[9px] text-stone-400 font-bold uppercase">{new Date(tx.date).toLocaleDateString()}</div>
                   </td>
-                  <td className="px-6 py-4 font-bold text-stone-800">
-                    <div className="truncate max-w-[120px] sm:max-w-none">{tx.customerName}</div>
+                  <td className="px-3 py-3 sm:px-6 sm:py-4 font-bold text-stone-800">
+                    <div className="truncate max-w-[80px] sm:max-w-none text-xs sm:text-sm">{tx.customerName}</div>
                   </td>
-                  <td className="px-6 py-4 text-xs font-black text-stone-500 uppercase hidden md:table-cell">
+                  <td className="px-3 py-3 sm:px-6 sm:py-4 text-xs font-black text-stone-500 uppercase hidden md:table-cell">
                     <Badge color="blue">{tx.items?.length || 0} Loads</Badge>
                   </td>
-                  <td className="px-6 py-4 text-right font-black text-stone-900 font-mono text-base">₦{(tx.totalInvoice || 0).toLocaleString()}</td>
-                  <td className="px-6 py-4 text-right">
-                    <span className={`text-xs font-black font-mono px-3 py-1 rounded-full ${tx.balance < 0 ? 'bg-red-50 text-red-600' : tx.balance > 0 ? 'bg-blue-50 text-blue-600' : 'bg-emerald-50 text-emerald-600'}`}>
+                  <td className="px-3 py-3 sm:px-6 sm:py-4 text-right font-black text-stone-900 font-mono text-xs sm:text-base whitespace-nowrap">₦{(tx.totalInvoice || 0).toLocaleString()}</td>
+                  <td className="px-3 py-3 sm:px-6 sm:py-4 text-right">
+                    <span className={`text-[10px] sm:text-xs font-black font-mono px-2 py-0.5 sm:px-3 sm:py-1 rounded-full whitespace-nowrap ${tx.balance < 0 ? 'bg-red-50 text-red-600' : tx.balance > 0 ? 'bg-blue-50 text-blue-600' : 'bg-emerald-50 text-emerald-600'}`}>
                       {tx.balance > 0 ? '+' : tx.balance < 0 ? '-' : ''}₦{Math.abs(tx.balance || 0).toLocaleString()}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-center" onClick={(e) => e.stopPropagation()}>
+                  <td className="px-3 py-3 sm:px-6 sm:py-4 text-center" onClick={(e) => e.stopPropagation()}>
                     <div className="flex justify-center gap-1">
                       <button
                         onClick={() => {
@@ -482,14 +479,14 @@ export const Transactions: React.FC = () => {
                           const url = `https://wa.me/${tx.customerPhone}?text=${encodeURIComponent(message)}`;
                           window.open(url, '_blank');
                         }}
-                        className="p-2 text-stone-400 hover:text-green-600 transition-colors"
+                        className="p-1 sm:p-2 text-stone-400 hover:text-green-600 transition-colors"
                         title="Send via WhatsApp"
                       >
                         <MessageCircle className="h-4 w-4" />
                       </button>
-                      <button onClick={() => navigate(`/receipt/${tx.id}`)} className="p-2 text-stone-400 hover:text-emerald-600 transition-colors" title="View Receipt"><Printer className="h-4 w-4" /></button>
-                      <button onClick={() => openModal(tx)} className="p-2 text-stone-400 hover:text-blue-600 transition-colors" title="Edit"><FileEdit className="h-4 w-4" /></button>
-                      <button onClick={() => deleteTransaction(tx.id)} className="p-2 text-stone-400 hover:text-red-600 transition-colors" title="Delete"><Trash2 className="h-4 w-4" /></button>
+                      <button onClick={() => navigate(`/receipt/${tx.id}`)} className="p-1 sm:p-2 text-stone-400 hover:text-emerald-600 transition-colors" title="View Receipt"><Printer className="h-4 w-4" /></button>
+                      <button onClick={() => openModal(tx)} className="p-1 sm:p-2 text-stone-400 hover:text-blue-600 transition-colors" title="Edit"><FileEdit className="h-4 w-4" /></button>
+                      <button onClick={() => deleteTransaction(tx.id)} className="p-1 sm:p-2 text-stone-400 hover:text-red-600 transition-colors" title="Delete"><Trash2 className="h-4 w-4" /></button>
                     </div>
                   </td>
                 </tr>
