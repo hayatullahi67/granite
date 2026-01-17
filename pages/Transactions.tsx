@@ -430,7 +430,7 @@ export const Transactions: React.FC = () => {
             color="emerald"
           />
           <SummaryItem
-            label="Estimated Yield"
+            label="Estimated Profit"
             value={`₦${filteredTotals.profit.toLocaleString()}`}
             icon={BarChart3}
             color="indigo"
@@ -698,7 +698,7 @@ export const Transactions: React.FC = () => {
                       </div>
                       <div className="flex justify-end pr-2">
                         <span className={`text-[9px] font-black uppercase tracking-widest ${item.profit >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
-                          Yield: {item.salesPrice > 0 ? `₦${Math.abs(item.profit || 0).toLocaleString()}` : '₦0'}
+                          Profit: {item.salesPrice > 0 ? `₦${Math.abs(item.profit || 0).toLocaleString()}` : '₦0'}
                         </span>
                       </div>
                     </div>
@@ -719,7 +719,7 @@ export const Transactions: React.FC = () => {
               <span className="text-[9px] font-black uppercase tracking-widest text-stone-400 mb-1">Invoice Total</span>
               <div className="text-2xl font-black font-mono leading-none text-stone-900">₦{formTotals.invoice.toLocaleString()}</div>
               <div className={`text-[9px] font-bold uppercase mt-1.5 ${formTotals.profit >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
-                Yield: ₦{formTotals.profit.toLocaleString()}
+                Profit: ₦{formTotals.profit.toLocaleString()}
               </div>
             </div>
             <div className="p-4 sm:p-5 bg-stone-50 rounded-3xl border border-stone-200 flex flex-col justify-center shadow-sm">
@@ -886,7 +886,7 @@ export const Transactions: React.FC = () => {
                       </div>
                     </div>
                     <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-xl">
-                      <span className="text-[9px] font-black uppercase tracking-widest text-stone-400">Yield</span>
+                      <span className="text-[9px] font-black uppercase tracking-widest text-stone-400">Profit</span>
                       <span className={`text-sm font-black font-mono ${item.profit >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                         {item.profit >= 0 ? '+' : ''}₦{item.profit.toLocaleString()}
                       </span>
