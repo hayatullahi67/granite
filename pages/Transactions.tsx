@@ -93,6 +93,26 @@ export const Transactions: React.FC = () => {
     }), { revenue: 0, tonnage: 0, profit: 0, count: 0 });
   }, [filteredTransactions]);
 
+  // 4. Calculate Aggregate Latest Balances from Filtered Set
+  const aggregateBalances = useMemo(() => {
+    const latestBalances: Record<string, number> = {};
+    const latestDates: Record<string, number> = {};
+
+    filteredTransactions.forEach(t => {
+      const time = new Date(t.date).getTime();
+      if (!latestDates[t.customerId] || time > latestDates[t.customerId]) {
+        latestDates[t.customerId] = time;
+        latestBalances[t.customerId] = t.balance;
+      }
+    });
+
+    return Object.values(latestBalances).reduce((acc, bal) => {
+      if (bal > 0) acc.totalCredit += bal;
+      if (bal < 0) acc.totalDebt += Math.abs(bal);
+      return acc;
+    }, { totalCredit: 0, totalDebt: 0 });
+  }, [filteredTransactions]);
+
   const availableQuarries = useMemo(() =>
     isAdmin ? quarries : quarries.filter(q => q.ownerId === user?.id || !q.ownerId),
     [quarries, user, isAdmin]
@@ -410,7 +430,7 @@ export const Transactions: React.FC = () => {
         </div>
 
         {/* Dynamic KPI Summary Bar */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 border-t border-stone-100 divide-y sm:divide-y-0 sm:divide-x divide-stone-100">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 border-t border-stone-100 divide-y sm:divide-y-0 sm:divide-x divide-stone-100">
           <SummaryItem
             label="Records Found"
             value={filteredTotals.count}
@@ -434,6 +454,18 @@ export const Transactions: React.FC = () => {
             value={`₦${filteredTotals.profit.toLocaleString()}`}
             icon={BarChart3}
             color="indigo"
+          />
+          <SummaryItem
+            label="Total Debt"
+            value={`₦${aggregateBalances.totalDebt.toLocaleString()}`}
+            icon={AlertTriangle}
+            color="red"
+          />
+          <SummaryItem
+            label="Total Credit"
+            value={`₦${aggregateBalances.totalCredit.toLocaleString()}`}
+            icon={CreditCard}
+            color="blue"
           />
         </div>
       </Card>
@@ -941,14 +973,18 @@ const SummaryItem: React.FC<{ label: string; value: string | number; icon: any; 
     stone: 'bg-stone-50/50 text-stone-800',
     primary: 'bg-primary-50/50 text-primary-900',
     emerald: 'bg-emerald-50/50 text-emerald-900',
-    indigo: 'bg-indigo-50/50 text-indigo-900'
+    indigo: 'bg-indigo-50/50 text-indigo-900',
+    red: 'bg-red-50/50 text-red-900',
+    blue: 'bg-blue-50/50 text-blue-900'
   }[color];
 
   const iconColor = {
     stone: 'text-stone-400',
     primary: 'text-primary-500',
     emerald: 'text-emerald-500',
-    indigo: 'text-indigo-500'
+    indigo: 'text-indigo-500',
+    red: 'text-red-500',
+    blue: 'text-blue-500'
   }[color];
 
   return (
