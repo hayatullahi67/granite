@@ -8,7 +8,7 @@ import {
   Plus, Search, Printer, Trash2, UserPlus, Truck, MapPin, Phone, Mail, MessageCircle,
   FileEdit, Package, DollarSign, MapPinned, CheckCircle, CircleDollarSign,
   Calculator, User, Scale, UserCheck, CreditCard, X, AlertTriangle,
-  Download, Filter, Calendar, FileSpreadsheet, RefreshCw, BarChart3, Layers
+  Download, Filter, Calendar, FileSpreadsheet, RefreshCw, BarChart3, Layers, FileText
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -516,6 +516,7 @@ export const Transactions: React.FC = () => {
                       >
                         <MessageCircle className="h-4 w-4" />
                       </button>
+                      <button onClick={() => navigate(`/invoice/${tx.id}`)} className="p-1 sm:p-2 text-stone-400 hover:text-primary-600 transition-colors" title="View Invoice"><FileText className="h-4 w-4" /></button>
                       <button onClick={() => navigate(`/receipt/${tx.id}`)} className="p-1 sm:p-2 text-stone-400 hover:text-emerald-600 transition-colors" title="View Receipt"><Printer className="h-4 w-4" /></button>
                       <button onClick={() => openModal(tx)} className="p-1 sm:p-2 text-stone-400 hover:text-blue-600 transition-colors" title="Edit"><FileEdit className="h-4 w-4" /></button>
                       <button onClick={() => deleteTransaction(tx.id)} className="p-1 sm:p-2 text-stone-400 hover:text-red-600 transition-colors" title="Delete"><Trash2 className="h-4 w-4" /></button>

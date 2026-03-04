@@ -49,7 +49,7 @@ const numberToWords = (num: number): string => {
     return result.trim();
 };
 
-export const Receipt: React.FC = () => {
+export const Invoice: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const { transactions } = useData();
     const navigate = useNavigate();
@@ -59,12 +59,12 @@ export const Receipt: React.FC = () => {
 
     const amountInWords = useMemo(() => {
         if (!transaction) return '';
-        const total = transaction.deposit || 0; // Receipts usually focus on what was paid
+        const total = transaction.totalInvoice || 0;
         return `${numberToWords(total)} Naira Only.`;
     }, [transaction]);
 
     if (!transaction) {
-        return <div className="min-h-screen flex items-center justify-center text-stone-500 font-medium">Loading receipt details...</div>;
+        return <div className="min-h-screen flex items-center justify-center text-stone-500 font-medium">Loading invoice details...</div>;
     }
 
     const handlePrint = () => {
@@ -72,14 +72,14 @@ export const Receipt: React.FC = () => {
     };
 
     const handleDownload = () => {
-        const element = document.getElementById('receipt-area');
+        const element = document.getElementById('invoice-area');
         if (!element) return;
 
         setDownloading(true);
 
         const opt = {
             margin: 0,
-            filename: `Receipt-${transaction.refNo}.pdf`,
+            filename: `Invoice-${transaction.refNo}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { scale: 3, useCORS: true, letterRendering: true },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
@@ -115,16 +115,16 @@ export const Receipt: React.FC = () => {
                             onClick={handlePrint}
                             className="bg-primary-900 hover:bg-primary-800 rounded-full shadow-md text-[10px] md:text-xs h-9 px-4"
                         >
-                            <Printer className="h-3.5 w-3.5 mr-1.5" /> <span className="hidden sm:inline">Print Receipt</span><span className="sm:hidden">Print</span>
+                            <Printer className="h-3.5 w-3.5 mr-1.5" /> <span className="hidden sm:inline">Print Invoice</span><span className="sm:hidden">Print</span>
                         </Button>
                     </div>
                 </div>
 
                 <div className="w-full overflow-x-auto pb-8 print:overflow-visible print:pb-0">
-                    {/* Main Receipt Content */}
+                    {/* Main Invoice Content */}
                     <div
                         className="bg-white shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-stone-100 w-[800px] mx-auto min-h-[1100px] relative overflow-hidden flex flex-col print:shadow-none print:border-0"
-                        id="receipt-area"
+                        id="invoice-area"
                     >
                         {/* Status Stamp */}
                         <div className="absolute top-48 left-12 z-0 opacity-80 pointer-events-none">
@@ -132,7 +132,6 @@ export const Receipt: React.FC = () => {
                                 {transaction.balance >= 0 ? 'FULFILLMENT PAID' : 'PART PAYMENT'}
                             </div>
                         </div>
-
                         <div className="p-12 pb-24 flex-1">
                             {/* Header Section */}
                             <div className="flex justify-between items-start mb-12 border-b-4 border-primary-900 pb-8">
@@ -144,21 +143,19 @@ export const Receipt: React.FC = () => {
                                     </div>
                                 </div>
                                 <div className="text-right">
-                                    <h2 className="text-4xl font-light text-stone-300 tracking-[0.1em] mb-2 uppercase">Payment Receipt</h2>
+                                    <h2 className="text-4xl font-light text-stone-300 tracking-[0.1em] mb-2 uppercase">Payment Invoice</h2>
                                     <div className="space-y-1 text-sm font-bold text-stone-800">
-                                        <p>Receipt No: <span className="font-black text-primary-900 animate-pulse underline decoration-primary-900/10">#{transaction.refNo}</span></p>
+                                        <p>Invoice No: <span className="font-black text-primary-900 underline decoration-primary-900/10">INV-{transaction.refNo}</span></p>
                                         <p>Date: {new Date(transaction.date).toLocaleDateString(undefined, { dateStyle: 'long' })}</p>
-                                        <p>Status: <span className={transaction.balance >= 0 ? 'text-emerald-600 font-black' : 'text-amber-600 font-black uppercase tracking-tighter'}>
-                                            {transaction.balance >= 0 ? 'FULLY SETTLED' : 'PARTIAL SETTLEMENT'}
-                                        </span></p>
+                                        <p>Status: <span className="text-emerald-600 font-black">VALID DOCUMENT</span></p>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Customer & Payment Info */}
+                            {/* Invoice Info */}
                             <div className="grid grid-cols-2 gap-12 mb-12">
                                 <div>
-                                    <p className="text-[10px] uppercase font-black text-stone-400 tracking-widest mb-3">Receipt Issued To:</p>
+                                    <p className="text-[10px] uppercase font-black text-stone-400 tracking-widest mb-3">Invoiced To:</p>
                                     <div className="space-y-1 p-3.5 bg-stone-50 border border-stone-100 rounded-xl">
                                         <h3 className="font-black text-lg text-stone-900 tracking-tight">{transaction.customerName}</h3>
                                         <div className="text-[11px] text-stone-600 font-bold space-y-1 pt-2">
@@ -167,31 +164,34 @@ export const Receipt: React.FC = () => {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="text-right space-y-4">
-                                    <p className="text-[10px] uppercase font-black text-stone-400 tracking-widest mb-4">Transaction Metadata:</p>
-                                    <div className="space-y-2 text-[11px] font-bold text-stone-700">
-                                        <p className="flex items-center justify-end uppercase">Auth Code: <span className="text-stone-900 ml-2 font-black font-mono">GF-{transaction.id?.substring(0, 8).toUpperCase()}</span></p>
-                                        <p className="flex items-center justify-end uppercase">Issued By: <span className="text-stone-900 ml-2 font-black italic">System Official</span></p>
-                                        <p className="flex items-center justify-end uppercase">Validation: <span className="text-emerald-600 ml-2 font-black tracking-tighter">Secured & Verified</span></p>
+                                <div className="text-right space-y-4 pt-8">
+                                    <div className="space-y-1.5 text-xs font-black text-stone-500 uppercase tracking-widest">
+                                        <p className="flex items-center justify-end"><Tag className="h-3 w-3 mr-2" /> TIN NO.: <span className="text-stone-900 ml-2">12345678</span></p>
+                                        <p className="flex items-center justify-end"><Tag className="h-3 w-3 mr-2" /> VAT No: <span className="text-stone-900 ml-2">20786211-001</span></p>
+                                        <p>PH: +{transaction.customerPhone}</p>
+                                    </div>
+                                    <div className="pt-4">
+                                        <p className="text-[10px] uppercase font-black text-stone-400 tracking-widest mb-2">Transport Ref:</p>
+                                        <p className="text-sm font-black text-primary-900">REF-{transaction.id?.substring(0, 8).toUpperCase()}</p>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Transaction Context Block */}
+                            {/* Transaction Details (Quarry/Vehicle) */}
                             <div className="mb-8 grid grid-cols-3 gap-6 bg-primary-50/30 p-6 rounded-2xl border border-primary-50">
                                 <div>
                                     <p className="text-[9px] uppercase font-black text-primary-900/40 tracking-widest mb-1.5">Quarry Source</p>
                                     <p className="text-sm font-black text-stone-800 truncate">{transaction.items?.[0]?.quarryName || 'N/A'}</p>
                                 </div>
                                 <div>
-                                    <p className="text-[9px] uppercase font-black text-primary-900/40 tracking-widest mb-1.5">Transport Unit</p>
+                                    <p className="text-[9px] uppercase font-black text-primary-900/40 tracking-widest mb-1.5">Vehicle Details</p>
                                     <p className="text-sm font-black text-stone-800 flex items-center">
                                         <Truck className="h-3.5 w-3.5 mr-2 text-primary-900" />
                                         {transaction.items?.[0]?.truckPlateNumber || 'N/A'}
                                     </p>
                                 </div>
                                 <div>
-                                    <p className="text-[9px] uppercase font-black text-primary-900/40 tracking-widest mb-1.5">Operator/Driver</p>
+                                    <p className="text-[9px] uppercase font-black text-primary-900/40 tracking-widest mb-1.5">Assigned Driver</p>
                                     <p className="text-sm font-black text-stone-800 flex items-center">
                                         <CreditCard className="h-3.5 w-3.5 mr-2 text-primary-900" />
                                         {transaction.items?.[0]?.driverName || 'N/A'}
@@ -199,15 +199,15 @@ export const Receipt: React.FC = () => {
                                 </div>
                             </div>
 
-                            {/* Summary Description Table */}
+                            {/* Items Table */}
                             <div className="mb-12 overflow-hidden border border-stone-100 rounded-2xl shadow-sm">
                                 <table className="w-full">
                                     <thead>
                                         <tr className="bg-stone-50 border-b border-stone-100">
-                                            <th className="text-left py-4 px-6 text-[10px] font-black uppercase tracking-widest text-stone-400">Transaction Item Description</th>
+                                            <th className="text-left py-4 px-6 text-[10px] font-black uppercase tracking-widest text-stone-400">Description / Material</th>
                                             <th className="text-center py-4 px-3 text-[10px] font-black uppercase tracking-widest text-stone-400">Qty (Tons)</th>
-                                            <th className="text-right py-4 px-3 text-[10px] font-black uppercase tracking-widest text-stone-400">Unit Rate</th>
-                                            <th className="text-right py-4 px-6 text-[10px] font-black uppercase tracking-widest text-stone-400">Total Value</th>
+                                            <th className="text-right py-4 px-3 text-[10px] font-black uppercase tracking-widest text-stone-400">Unit Price (NGN)</th>
+                                            <th className="text-right py-4 px-6 text-[10px] font-black uppercase tracking-widest text-stone-400">Extension Total (NGN)</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-stone-50">
@@ -215,11 +215,11 @@ export const Receipt: React.FC = () => {
                                             <tr key={index}>
                                                 <td className="py-5 px-6">
                                                     <p className="font-black text-stone-800 text-base">{item.productName}</p>
-                                                    <p className="text-[10px] text-stone-400 font-bold uppercase mt-1">Confirmed Supply • Reference Group {index + 1}</p>
+                                                    <p className="text-[10px] text-stone-400 font-bold uppercase mt-1">Order Ref: ORD-{index + 1} • Standard Supply</p>
                                                 </td>
                                                 <td className="py-5 px-3 text-center text-stone-800 font-mono text-sm font-bold">{(item.quantity || 0).toLocaleString()}</td>
-                                                <td className="py-5 px-3 text-right text-stone-800 font-mono text-sm font-bold">{item.salesPrice.toLocaleString()}</td>
-                                                <td className="py-5 px-6 text-right text-stone-900 font-black font-mono text-lg">{item.totalInvoice.toLocaleString()}</td>
+                                                <td className="py-5 px-3 text-right text-stone-800 font-mono text-sm font-bold">{item.salesPrice.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                                                <td className="py-5 px-6 text-right text-stone-900 font-black font-mono text-lg">{item.totalInvoice.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -230,53 +230,48 @@ export const Receipt: React.FC = () => {
                             <div className="flex justify-between items-start gap-12">
                                 <div className="flex-1 space-y-8">
                                     <div>
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-stone-400 mb-2">Paid Amount in Words:</p>
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-stone-400 mb-2">Total Amount in Words:</p>
                                         <p className="text-base font-black italic text-primary-900 border-l-4 border-primary-900 pl-4 py-2">{amountInWords}</p>
                                     </div>
 
-                                    <div className="mt-8 p-6 bg-stone-50 rounded-xl border border-stone-100 border-t-4 border-t-primary-900">
-                                        <p className="text-xs font-black text-stone-900 mb-4 tracking-tight uppercase tracking-widest">Acknowledgment</p>
-                                        <div className="h-12 flex items-end justify-between border-b border-stone-200 pb-2 mb-4">
-                                            <div className="text-[9px] font-black text-stone-300 uppercase italic">Digitally Signed & Secured</div>
-                                            <div className="text-[9px] font-black text-stone-400 uppercase">{new Date().toLocaleDateString()}</div>
+                                    <div className="mt-8 p-8 bg-stone-50 rounded-2xl border border-stone-100 border-t-4 border-t-primary-900">
+                                        <p className="text-sm font-black text-stone-900 mb-6 tracking-tight uppercase tracking-widest">Authorized Recognition</p>
+                                        <div className="h-16 flex items-end justify-between border-b border-stone-200 pb-2 mb-4">
+                                            <div className="text-[10px] font-black text-stone-300 uppercase italic">Digital Signature Verified</div>
+                                            <div className="text-[10px] font-black text-stone-400 uppercase">{new Date().toLocaleDateString()}</div>
                                         </div>
                                         <div className="space-y-1">
-                                            <p className="text-[9px] font-black uppercase text-stone-400 tracking-widest">Revenue Collection Unit</p>
-                                            <p className="text-[9px] font-black uppercase text-stone-600 tracking-widest">For and on behalf of GraniteFlow ENTERPRISE</p>
+                                            <p className="text-[10px] font-black uppercase text-stone-400 tracking-widest">Finance Operations Department</p>
+                                            <p className="text-[10px] font-black uppercase text-stone-600 tracking-widest">Official Invoice For GraniteFlow Supply & Logistics</p>
                                         </div>
+                                    </div>
+
+                                    <div className="text-[10px] font-bold text-stone-400 leading-relaxed italic pr-12">
+                                        Note: Returns are only accepted within 24 hours of supply. Please verify material quality at the point of delivery.
                                     </div>
                                 </div>
 
-                                <div className="w-[280px] space-y-3">
-                                    <div className="p-6 bg-primary-900 rounded-2xl text-white shadow-2xl shadow-primary-900/40 relative overflow-hidden">
-                                        <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full -mr-12 -mt-12 transition-transform hover:scale-150 duration-700"></div>
-                                        <div className="relative z-10">
-                                            <div className="flex justify-between items-center text-[10px] font-bold text-primary-300 mb-3 px-1">
+                                <div className="w-[260px] space-y-3">
+                                    <div className="p-5 bg-primary-900 rounded-2xl text-white shadow-xl shadow-primary-900/20">
+                                        <div className="space-y-2 mb-4">
+                                            <div className="flex justify-between items-center text-[10px] font-bold text-primary-200">
                                                 <span>Subtotal</span>
                                                 <span className="font-mono">{transaction.totalInvoice.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                                             </div>
-                                            <div className="h-px bg-primary-800 mb-4"></div>
-                                            <div className="space-y-4">
-                                                <div className="flex justify-between items-end">
-                                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary-400 leading-none mb-1">Total Paid</span>
-                                                    <div className="text-right">
-                                                        <p className="text-xl font-black font-mono leading-none tracking-tighter text-emerald-400">
-                                                            {(transaction.deposit || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                <div className="pt-3 border-t border-primary-800/50 flex justify-between items-center text-[10px]">
-                                                    <span className="font-black uppercase tracking-widest text-primary-500">Balance Owed</span>
-                                                    <span className={`font-black font-mono ${transaction.balance < 0 ? 'text-red-400' : 'text-emerald-400'}`}>
-                                                        {Math.abs(transaction.balance || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                                                    </span>
-                                                </div>
+                                        </div>
+                                        <div className="flex justify-between items-end border-t border-primary-800 pt-3">
+                                            <span className="text-[11px] font-black uppercase tracking-widest text-primary-300">Total Due</span>
+                                            <div className="text-right">
+                                                <p className="text-[9px] font-bold text-primary-400 mb-0.5 uppercase tracking-tighter">NGN (Naira)</p>
+                                                <p className="text-xl font-black font-mono leading-none tracking-tighter">
+                                                    {transaction.totalInvoice.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                                </p>
                                             </div>
                                         </div>
                                     </div>
                                     <div className="px-4 text-center">
-                                        <p className="text-[9px] font-black text-stone-400 uppercase tracking-widest flex items-center justify-center">
-                                            <Tag className="h-2.5 w-2.5 mr-2 opacity-50" /> Transaction ID: {transaction.id?.substring(0, 12).toUpperCase()}
+                                        <p className="text-[9px] font-black text-stone-400 uppercase tracking-widest">
+                                            Billing Terms: Due on Receipt
                                         </p>
                                     </div>
                                 </div>
@@ -289,11 +284,10 @@ export const Receipt: React.FC = () => {
                                 GraniteFlow ERP System
                             </p>
                             <p className="text-[8px] font-bold text-stone-500 uppercase tracking-widest">
-                                Official Receipt of Payment • Validated on {new Date().toISOString()} • App v1.2.0 • Secure Doc
+                                Official Confirmation of Transaction • Generated on {new Date().toISOString()} • App v1.2.0
                             </p>
                         </div>
                     </div>
-
                 </div>
             </div>
 
@@ -301,7 +295,7 @@ export const Receipt: React.FC = () => {
                 @media print {
                     body { background: white !important; }
                     .print\\:hidden { display: none !important; }
-                    #receipt-area {
+                    #invoice-area {
                         margin: 0 !important;
                         padding: 0 !important;
                         width: 100% !important;

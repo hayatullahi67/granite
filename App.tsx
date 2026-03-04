@@ -14,14 +14,15 @@ import { Customers } from './pages/Customers';
 import { Quarries } from './pages/Quarries';
 import { AuditTrail } from './pages/AuditTrail';
 import { Receipt } from './pages/Receipt';
+import { Invoice } from './pages/Invoice';
 import { Analytics } from './pages/Analytics';
 import { UserRole } from './types';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode, requiredRole?: UserRole }> = ({ children, requiredRole }) => {
   const { isAuthenticated, user } = useAuth();
-  
+
   if (!isAuthenticated) return <Navigate to="/login" replace />;
-  
+
   if (requiredRole && user?.role !== requiredRole) {
     return <Navigate to="/dashboard" replace />;
   }
@@ -36,7 +37,7 @@ const App: React.FC = () => {
         <HashRouter>
           <Routes>
             <Route path="/login" element={<Login />} />
-            
+
             <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
               <Route index element={<Navigate to="/dashboard" replace />} />
               <Route path="dashboard" element={<Dashboard />} />
@@ -46,16 +47,17 @@ const App: React.FC = () => {
               <Route path="price-mapping" element={<PriceMapping />} />
               <Route path="my-sales" element={<MySales />} />
               <Route path="receipt/:id" element={<Receipt />} />
+              <Route path="invoice/:id" element={<Invoice />} />
               <Route path="customers" element={<Customers />} />
               <Route path="quarries" element={<Quarries />} />
-              
-               <Route 
-                path="audit" 
+
+              <Route
+                path="audit"
                 element={
-                    <ProtectedRoute requiredRole={UserRole.ADMIN}>
-                        <AuditTrail />
-                    </ProtectedRoute>
-                } 
+                  <ProtectedRoute requiredRole={UserRole.ADMIN}>
+                    <AuditTrail />
+                  </ProtectedRoute>
+                }
               />
             </Route>
 
