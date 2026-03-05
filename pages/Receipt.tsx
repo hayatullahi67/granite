@@ -185,11 +185,11 @@ export const Receipt: React.FC = () => {
                             </div>
 
                             {/* Transaction Context Block */}
-                            <div className="mb-8 grid grid-cols-3 gap-6 bg-primary-50/30 p-6 rounded-2xl border border-primary-50">
-                                <div>
+                            <div className="mb-8 grid grid-cols-2 gap-6 bg-primary-50/30 p-6 rounded-2xl border border-primary-50">
+                                {/* <div>
                                     <p className="text-[9px] uppercase font-black text-primary-900/40 tracking-widest mb-1.5">Quarry Source</p>
                                     <p className="text-sm font-black text-stone-800 truncate">{transaction.items?.[0]?.quarryName || 'N/A'}</p>
-                                </div>
+                                </div> */}
                                 <div>
                                     <p className="text-[9px] uppercase font-black text-primary-900/40 tracking-widest mb-1.5">Transport Unit</p>
                                     <p className="text-sm font-black text-stone-800 flex items-center">
