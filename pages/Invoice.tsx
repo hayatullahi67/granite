@@ -136,10 +136,12 @@ export const Invoice: React.FC = () => {
                             {/* Header Section */}
                             <div className="flex justify-between items-start mb-12 border-b-4 border-primary-900 pb-8">
                                 <div className="flex items-center gap-6">
-                                    <div className="h-20 w-20 bg-primary-900 flex items-center justify-center text-white font-bold text-4xl rounded-2xl shadow-lg ring-4 ring-primary-50">G</div>
+                                    <div className="h-20 w-20 bg-primary-900 flex items-center justify-center text-white font-bold text-4xl rounded-2xl shadow-lg ring-4 ring-primary-50">BM</div>
                                     <div>
-                                        <h1 className="text-3xl font-black text-stone-900 tracking-tight leading-none uppercase">GraniteFlow</h1>
-                                        <p className="text-stone-500 text-[10px] mt-2 uppercase tracking-[0.3em] font-black">Supply & Logistics Enterprise</p>
+                                        <h1 className="text-3xl font-black text-stone-900 tracking-tight leading-none uppercase text-primary-900">B.M. MARUPH</h1>
+                                        <h2 className="text-xl font-black text-stone-700 tracking-tight leading-none uppercase mt-1">GLOBAL RESOURCES</h2>
+                                        <p className="text-stone-500 text-[9px] mt-2 uppercase tracking-[0.1em] font-black">GRANITE, SHARP SAND, HAULAGE, FILLING SAND</p>
+                                        <p className="text-stone-400 text-[8px] mt-1 font-bold uppercase">CAC: 3174302</p>
                                     </div>
                                 </div>
                                 <div className="text-right">
@@ -162,6 +164,11 @@ export const Invoice: React.FC = () => {
                                             <p className="flex items-start text-stone-800"><MapPin className="h-3.5 w-3.5 mr-2.5 text-stone-400 shrink-0 mt-0.5" /> {transaction.destinationAddress}</p>
                                             <p className="flex items-center"><Phone className="h-3.5 w-3.5 mr-2.5 text-stone-400" /> {transaction.customerPhone}</p>
                                         </div>
+                                    </div>
+                                    <div className="mt-4 p-3.5 border-l-4 border-primary-900 bg-stone-50 rounded-r-xl">
+                                        <p className="text-[10px] uppercase font-black text-stone-400 tracking-widest mb-1">Our Address:</p>
+                                        <p className="text-[10px] font-bold text-stone-800 leading-tight">55, Kugba Road, Beside Feelmore Filling Station, Abeokuta, Ogun State.</p>
+                                        <p className="text-[10px] font-bold text-primary-900 mt-1">Tel: 08032618021, 08022575620</p>
                                     </div>
                                 </div>
                                 <div className="text-right space-y-4 pt-8">
@@ -234,20 +241,32 @@ export const Invoice: React.FC = () => {
                                         <p className="text-base font-black italic text-primary-900 border-l-4 border-primary-900 pl-4 py-2">{amountInWords}</p>
                                     </div>
 
-                                    <div className="mt-8 p-8 bg-stone-50 rounded-2xl border border-stone-100 border-t-4 border-t-primary-900">
-                                        <p className="text-sm font-black text-stone-900 mb-6 tracking-tight uppercase tracking-widest">Authorized Recognition</p>
-                                        <div className="h-16 flex items-end justify-between border-b border-stone-200 pb-2 mb-4">
-                                            <div className="text-[10px] font-black text-stone-300 uppercase italic">Digital Signature Verified</div>
-                                            <div className="text-[10px] font-black text-stone-400 uppercase">{new Date().toLocaleDateString()}</div>
-                                        </div>
-                                        <div className="space-y-1">
-                                            <p className="text-[10px] font-black uppercase text-stone-400 tracking-widest">Finance Operations Department</p>
-                                            <p className="text-[10px] font-black uppercase text-stone-600 tracking-widest">Official Invoice For GraniteFlow Supply & Logistics</p>
+                                    <div className="mt-8 p-6 bg-stone-50 rounded-2xl border border-stone-100 border-t-4 border-t-primary-900">
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <p className="text-[10px] font-black uppercase tracking-widest text-primary-900 mb-2">ACCOUNT DETAILS:</p>
+                                                <div className="space-y-0.5 text-[11px] font-black text-stone-800">
+                                                    <p>BM Maruph Global Resource</p>
+                                                    <p>FCMB Bank</p>
+                                                    <p className="text-lg text-primary-900 font-mono tracking-tighter">4233924017</p>
+                                                </div>
+                                            </div>
+                                            <div className="border-l border-stone-200 pl-4">
+                                                <p className="text-[10px] font-black text-stone-900 mb-4 tracking-tight uppercase tracking-widest">AUTHORIZED BY</p>
+                                                <div className="h-10 border-b border-stone-200 mb-2"></div>
+                                                <p className="text-[9px] font-black uppercase text-stone-400 tracking-widest">Manager's Signature</p>
+                                            </div>
                                         </div>
                                     </div>
 
-                                    <div className="text-[10px] font-bold text-stone-400 leading-relaxed italic pr-12">
-                                        Note: Returns are only accepted within 24 hours of supply. Please verify material quality at the point of delivery.
+                                    <div className="grid grid-cols-2 gap-8 mt-4 italic">
+                                        <div className="text-[9px] font-bold text-stone-400 leading-relaxed">
+                                            Note: Returns are only accepted within 24 hours of supply. Please verify material quality at the point of delivery.
+                                        </div>
+                                        <div className="text-right">
+                                            <div className="h-10 border-b border-stone-200 mb-2"></div>
+                                            <p className="text-[9px] font-black uppercase text-stone-400 tracking-widest">Customer's Signature</p>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -281,10 +300,10 @@ export const Invoice: React.FC = () => {
                         {/* Footer System Bar */}
                         <div className="bg-stone-900 p-8 text-center mt-auto">
                             <p className="text-[10px] font-black text-white uppercase tracking-[0.4em] mb-2">
-                                GraniteFlow ERP System
+                                B.M. MARUPH GLOBAL RESOURCES SYSTEM
                             </p>
                             <p className="text-[8px] font-bold text-stone-500 uppercase tracking-widest">
-                                Official Confirmation of Transaction • Generated on {new Date().toISOString()} • App v1.2.0
+                                Official Confirmation of Transaction • Generated on {new Date().toISOString()} • App v1.3.0
                             </p>
                         </div>
                     </div>

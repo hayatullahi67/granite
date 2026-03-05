@@ -227,7 +227,7 @@ export const Customers: React.FC = () => {
         <form onSubmit={handleSubmit} className="space-y-6 pb-2">
           <div className="bg-stone-50 p-6 rounded-[2rem] border border-stone-100 space-y-5">
             <Input label="Business or Client Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} icon={Users} required placeholder="e.g. Skyline Logistics" className="bg-white border-stone-200" />
-            <Input label="Primary Phone Line" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} icon={Phone} placeholder="080... (Required for communication)" required className="bg-white border-stone-200" />
+            <Input label="Primary Phone Line (Use +234 format)" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} icon={Phone} placeholder="+234... (Required for communication)" required className="bg-white border-stone-200" />
             <Input label="Official Email (Optional)" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} icon={Mail} placeholder="billing@company.com" className="bg-white border-stone-200" />
           </div>
 
